@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
+import br.com.geofusion.cart.domain.product.Product;
+
 /**
  * Classe que representa o carrinho de compras de um cliente.
  */

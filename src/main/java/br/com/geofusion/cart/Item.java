@@ -2,6 +2,8 @@ package br.com.geofusion.cart;
 
 import java.math.BigDecimal;
 
+import br.com.geofusion.cart.domain.product.Product;
+
 /**
  * Classe que representa um item no carrinho de compras.
  */
