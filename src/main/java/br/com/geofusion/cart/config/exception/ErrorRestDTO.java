@@ -2,34 +2,36 @@ package br.com.geofusion.cart.config.exception;
 
 import java.time.LocalDateTime;
 
+import org.springframework.http.HttpStatus;
+
 public class ErrorRestDTO {
 
-	private LocalDateTime dateTime;
-	private Integer code;
-	private String description;
+	private LocalDateTime timestamp;
+	private Integer status;
+	private String error;
 	private String message;
 
-	private ErrorRestDTO(final LocalDateTime dateTime, final Integer code, final String description, final String message) {
-		this.dateTime = dateTime;
-		this.code = code;
-		this.description = description;
+	private ErrorRestDTO(final HttpStatus httpStatus, final String message) {
+		this.timestamp = LocalDateTime.now();
+		this.status = httpStatus.value();
+		this.error = httpStatus.getReasonPhrase();
 		this.message = message;
 	}
 
-	public static ErrorRestDTO create(final LocalDateTime dateTime, final Integer code, final String description, final String message) {
-		return new ErrorRestDTO(dateTime, code, description, message);
+	public static ErrorRestDTO create(final HttpStatus httpStatus, final String message) {
+		return new ErrorRestDTO(httpStatus, message);
 	}
 
-	public LocalDateTime getDateTime() {
-		return dateTime;
+	public LocalDateTime getTimestamp() {
+		return timestamp;
 	}
 
-	public Integer getCode() {
-		return code;
+	public Integer getStatus() {
+		return status;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getError() {
+		return error;
 	}
 
 	public String getMessage() {

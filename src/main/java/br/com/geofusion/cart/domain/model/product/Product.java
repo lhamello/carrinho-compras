@@ -1,4 +1,4 @@
-package br.com.geofusion.cart.domain.product;
+package br.com.geofusion.cart.domain.model.product;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,7 +20,7 @@ import br.com.geofusion.cart.domain.shared.ValidationError;
  * mesmo código.
  */
 @Entity
-@Table(name = "PRODUCT")
+@Table(name = "product")
 public class Product {
 
 	@Id
@@ -38,7 +38,7 @@ public class Product {
 	 * @param code
 	 * @param description
 	 */
-	Product(Long code, String description) {
+	public Product(Long code, String description) {
 		this();
 		this.code = code;
 		this.description = description;
@@ -78,5 +78,22 @@ public class Product {
 	 */
 	public String getDescription() {
 		return this.description;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(code);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Product other = (Product) obj;
+		return Objects.equals(code, other.code);
 	}
 }

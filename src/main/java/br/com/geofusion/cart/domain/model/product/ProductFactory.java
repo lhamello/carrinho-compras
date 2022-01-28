@@ -1,4 +1,4 @@
-package br.com.geofusion.cart.domain.product;
+package br.com.geofusion.cart.domain.model.product;
 
 import java.util.List;
 import java.util.Optional;

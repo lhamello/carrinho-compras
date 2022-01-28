@@ -1,4 +1,4 @@
-package br.com.geofusion.cart.interfaces.rest;
+package br.com.geofusion.cart.interfaces.rest.product.dto.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;

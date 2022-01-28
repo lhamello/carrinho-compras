@@ -1,15 +1,15 @@
 package br.com.geofusion.cart.config.exception;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import br.com.geofusion.cart.domain.shared.DomainException;
 
@@ -17,42 +17,41 @@ import br.com.geofusion.cart.domain.shared.DomainException;
 public class ExceptionHelper {
 
 	@ExceptionHandler(value = { DomainException.class })
-	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
-	public ResponseEntity<Object> handleMethodArgumentNotValidException(final DomainException exception) {
+	public ResponseEntity<List<ErrorRestDTO>> handleMethodArgumentNotValidException(final DomainException exception) {
 		final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 		
-		final List<ErrorRestDTO> errors = exception.getValidationErrors()
-				.stream()
-				.map(error -> ErrorRestDTO.create(LocalDateTime.now(), httpStatus.value(), httpStatus.getReasonPhrase(), error.getMessage()))
-				.collect(Collectors.toList());
-		
-		return ResponseEntity
-				.badRequest()
-				.body(errors);
+		return ResponseEntity.status(httpStatus)
+				.body(exception.getValidationErrors()
+						.stream()
+						.map(error -> ErrorRestDTO.create(httpStatus, exception.getMessage()))
+						.collect(Collectors.toList()));
 	}
 	
 	@ExceptionHandler(value = { MethodArgumentNotValidException.class })
-	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
-	public ResponseEntity<Object> handleMethodArgumentNotValidException(final MethodArgumentNotValidException exception) {
+	public ResponseEntity<List<ErrorRestDTO>> handleMethodArgumentNotValidException(final MethodArgumentNotValidException exception) {
 		final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 		
-		final List<ErrorRestDTO> errors = exception.getBindingResult()
-				.getFieldErrors()
-				.stream()
-				.map(error -> ErrorRestDTO.create(LocalDateTime.now(), httpStatus.value(), httpStatus.getReasonPhrase(), error.getDefaultMessage()))
-				.collect(Collectors.toList());
-		
-		return ResponseEntity
-				.badRequest()
-				.body(errors);
+		return ResponseEntity.status(httpStatus)
+				.body(exception.getBindingResult()
+						.getFieldErrors()
+						.stream()
+						.map(error -> ErrorRestDTO.create(httpStatus, error.getDefaultMessage()))
+						.collect(Collectors.toList()));
 	}
 
+	@ExceptionHandler(value = { EntityNotFoundException.class })
+	public ResponseEntity<ErrorRestDTO> handleEntityNotFoundException(final EntityNotFoundException exception) {
+		final HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+		
+		return ResponseEntity.status(httpStatus)
+				.body(ErrorRestDTO.create(httpStatus, exception.getMessage()));
+	}
+	
 	@ExceptionHandler(value = { Exception.class })
-	public ResponseEntity<Object> handleException(final Exception exception) {
+	public ResponseEntity<ErrorRestDTO> handleException(final Exception exception) {
 		final HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		
-		return ResponseEntity
-				.internalServerError()
-				.body(ErrorRestDTO.create(LocalDateTime.now(), httpStatus.value(), httpStatus.getReasonPhrase(), "Ocorreu um erro interno no servidor, contate a equipe de desenvolvimento."));
+		return ResponseEntity.status(httpStatus)
+				.body(ErrorRestDTO.create(httpStatus, String.format("Erro inesperado: %s", exception.getMessage())));
 	}
 }

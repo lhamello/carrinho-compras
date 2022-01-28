@@ -1,19 +1,49 @@
-package br.com.geofusion.cart;
+package br.com.geofusion.cart.domain.model.shoppingcart;
 
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
-import br.com.geofusion.cart.domain.product.Product;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import br.com.geofusion.cart.domain.model.product.Product;
 
 /**
  * Classe que representa o carrinho de compras de um cliente.
  */
+@Entity
+@Table(name = "shopping_cart")
 public class ShoppingCart {
-
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	@OneToMany(cascade = CascadeType.ALL)
     private List<Item> items;
+	private BigDecimal amount;
+	private String clientId;
 
+	private ShoppingCart() {
+		// utilizado pelo hibernate
+	}
+	
+    ShoppingCart(final String clientId) {
+    	this();
+    	this.items = new LinkedList<>();
+    	this.amount = BigDecimal.ZERO;
+    	this.clientId = clientId;
+    }
+    
     /**
      * Permite a adição de um novo item no carrinho de compras.
      *
@@ -28,8 +58,17 @@ public class ShoppingCart {
      * @param unitPrice
      * @param quantity
      */
-    public void addItem(Product product, BigDecimal unitPrice, int quantity) {
-
+    public void addItem(final Product product, final BigDecimal unitPrice, final int quantity) {
+    	final Item item = new Item(product, unitPrice, quantity);
+    	
+    	if (items.contains(item)) {
+    		final int index = items.indexOf(item);
+    		final Item existent = items.get(index);
+    		existent.update(unitPrice, quantity);
+    	} else {
+    		items.add(item);
+    		amount = amount.add(item.getAmount());
+    	}
     }
 
     /**
@@ -39,8 +78,8 @@ public class ShoppingCart {
      * @return Retorna um boolean, tendo o valor true caso o produto exista no carrinho de compras e false
      * caso o produto não exista no carrinho.
      */
-    public boolean removeItem(Product product) {
-        return false;
+    public boolean removeItem(final Product product) {
+    	return items.removeIf(i -> i.getProduct().equals(product));
     }
 
     /**
@@ -52,8 +91,9 @@ public class ShoppingCart {
      * @return Retorna um boolean, tendo o valor true caso o produto exista no carrinho de compras e false
      * caso o produto não exista no carrinho.
      */
-    public boolean removeItem(int itemIndex) {
-        return false;
+    public boolean removeItem(final int itemIndex) {
+        return Optional.ofNullable(items.remove(itemIndex))
+        		.isPresent();
     }
 
     /**
@@ -63,7 +103,7 @@ public class ShoppingCart {
      * @return BigDecimal
      */
     public BigDecimal getAmount() {
-        return null;
+        return amount;
     }
 
     /**
@@ -72,6 +112,14 @@ public class ShoppingCart {
      * @return items
      */
     public Collection<Item> getItems() {
-        return null;
+        return Collections.unmodifiableCollection(items);
     }
+    
+    public String getClientId() {
+		return clientId;
+	}
+    
+    public Long getId() {
+		return id;
+	}
 }

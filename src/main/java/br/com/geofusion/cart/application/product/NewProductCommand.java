@@ -4,9 +4,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import br.com.geofusion.cart.application.Command;
-import br.com.geofusion.cart.domain.product.Product;
-import br.com.geofusion.cart.domain.product.ProductFactory;
-import br.com.geofusion.cart.domain.product.ProductRepository;
+import br.com.geofusion.cart.domain.model.product.Product;
+import br.com.geofusion.cart.domain.model.product.ProductFactory;
+import br.com.geofusion.cart.domain.model.product.ProductRepository;
 
 @Service
 public class NewProductCommand implements Command<NewProductResponse, NewProductRequest> {
